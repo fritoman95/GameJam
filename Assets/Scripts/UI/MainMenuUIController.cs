@@ -56,6 +56,7 @@ public class MainMenuUIController : MonoBehaviour
     {
         HideMainMenu();
         GameManager.Instance.StartGame();
+        GamePlayUI.Instance.Initialize();
     }
 
     public void ExitGame()

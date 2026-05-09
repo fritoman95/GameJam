@@ -130,7 +130,7 @@ public class CastleBuilderController : MonoBehaviour
     }
 }
 
-public class BuildingParts : MonoBehaviour
+public class BuildingParts : MonoBehaviour, IHealthSystem
 {
     public GridCell BuildingPartsBuildCell;
 
@@ -143,12 +143,27 @@ public class BuildingParts : MonoBehaviour
     {
         BuildingPartsBuildCell = partsCell;
 
+        SetHealthValues();
+    }
+
+    public void SetHealthValues()
+    {
         CurrentHealth = BuildingStats.MaxHealthPoints;
         CurrentDamage = BuildingStats.DamagePoints;
     }
 
-    public void DestroyBuildPart()
+    public void OnHealthChangeEvent(int difference)
     {
+        CurrentHealth += difference;
+
+        if (CurrentHealth <= 0)
+            OnDieEvent();
+    }
+
+    public void OnDieEvent()
+    {
+        //Play a death animation
+        Destroy(this);
         GridManager.Instance.RemoveGridCellPair(BuildingPartsBuildCell);
     }
 }

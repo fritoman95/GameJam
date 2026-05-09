@@ -115,11 +115,8 @@ public class GridManager : MonoBehaviour
         return x >= 0 && y >= 0 && x < Columns && y < Rows;
     }
 
-    void OnDrawGizmos()
+    void OnDrawGizmosSelected()
     {
-        if (!Application.isPlaying)
-            return;
-
         Gizmos.color = Color.green;
 
         for (int x = 0; x < Columns; x++)
@@ -127,7 +124,7 @@ public class GridManager : MonoBehaviour
             for (int y = 0; y < Rows; y++)
             {
                 GridCell grabbedCell = GetCell(x, y);
-                Vector3 pos = grabbedCell.WorldPosition/*GetWorldPosition(x, y)*//* + (Vector3.one * (CellSize / 2))*/;
+                Vector3 pos = grabbedCell.WorldPosition;
 
                 if (grabbedCell.NonBuildableSpot)
                     Gizmos.color = Color.gray;

@@ -59,10 +59,10 @@ public class BuildMenuUIController : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.CurrentState == GameState.NotPlaying ||GameManager.CurrentState == GameState.GameOver)
+        if (GameManager.CurrentState == GameState.NotPlaying || GameManager.CurrentState == GameState.GameOver)
             return;
 
-        if (!_showingBuildMenu)
+        if (!_showingBuildMenu && GameManager.CurrentState != GameState.Defending)
         {
             if(DetermineMouseInActivationThreshold)
                 ShowBuildMenu();
@@ -90,7 +90,7 @@ public class BuildMenuUIController : MonoBehaviour
         ToggleBuildingUIInteractivity(true);
     }
 
-    void HideBuildMenu()
+    public void HideBuildMenu()
     {
         _currentHidingTimer = 0;
         _showingBuildMenu = false;
