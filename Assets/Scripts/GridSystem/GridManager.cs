@@ -1,12 +1,16 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 public class GridManager : MonoBehaviour
 {
     public static GridManager Instance;
+    public static GridCell CurrentlyHoveredOverCell;
 
+    [SerializeField]
+    GridCell[,] _grid;
+
+    [Header("Grid Parameters")]
     //Was CellWidth
     public int Rows;
     //Was CellHeight
@@ -15,16 +19,16 @@ public class GridManager : MonoBehaviour
     [SerializeField]
     float CellSize = 5;
 
-    [SerializeField]
-    GridCell[,] _grid;
+    [Header("NonBuilding Grid Parameters")]
+    public int NonBuildingColumnLimits;
 
     [SerializeField]
-    Dictionary<GridCell, BuildingParts> GridAndBuildingPieceDictionary;
+    Dictionary<GridCell, BuildingParts> _gridAndBuildingPieceDictionary;
 
     [SerializeField]
-    List<GridCell> cellsList = new List<GridCell>();
+    List<GridCell> _cells = new List<GridCell>();
     [SerializeField]
-    List<BuildingParts> BuildingParts = new List<BuildingParts>();
+    List<BuildingParts> _buildingParts = new List<BuildingParts>();
 
     void Awake()
     {
@@ -38,33 +42,19 @@ public class GridManager : MonoBehaviour
     {
         CreateGrid();
 
-        GridAndBuildingPieceDictionary = new Dictionary<GridCell, BuildingParts>();
+        _gridAndBuildingPieceDictionary = new Dictionary<GridCell, BuildingParts>();
     }
 
     void Update()
     {
         //Temp code
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit))
+        if (Physics.Raycast(PlayerInputController.PlayersMouseRay, out RaycastHit hit))
         {
+            GridCell cell = null;
             if (GetXY(hit.point, out int x, out int y))
-            {
-                GridCell cell = GetCell(x, y);
+                cell = GetCell(x, y);
 
-                if (!cell.IsOccupied)
-                {
-                    Instantiate(GameObject.CreatePrimitive(PrimitiveType.Capsule), cell.WorldPosition, Quaternion.identity);
-
-                    cell.IsOccupied = true;
-
-                    //Temporary
-                    WallPart newWall = new WallPart();
-
-                    GridAndBuildingPieceDictionary.Add(cell, newWall);
-
-                    cellsList.Add(cell);
-                    BuildingParts.Add(newWall);
-                }
-            }
+            CurrentlyHoveredOverCell = cell;
         }
     }
 
@@ -81,6 +71,28 @@ public class GridManager : MonoBehaviour
                 _grid[x, y] = new GridCell(x, y, worldPos);
             }
         }
+    }
+
+    public void SaveGridCellCombo(GridCell cell, BuildingParts part)
+    {
+        cell.IsOccupied = true;
+
+        _gridAndBuildingPieceDictionary.Add(cell, part);
+
+        _cells.Add(cell);
+        _buildingParts.Add(part);
+    }
+
+    public void RemoveGridCellPair(GridCell cell = null)
+    {
+        if (cell == null)
+            throw new System.Exception("Cannot remove a part if nothing is provided");
+
+        _gridAndBuildingPieceDictionary.TryGetValue(cell, out BuildingParts value);
+
+        _cells.Remove(cell);
+        _buildingParts.Remove(value);
+        _gridAndBuildingPieceDictionary.Remove(cell);
     }
 
     Vector3 GetWorldPosition(int x, int y)
@@ -105,13 +117,22 @@ public class GridManager : MonoBehaviour
 
     void OnDrawGizmos()
     {
+        if (!Application.isPlaying)
+            return;
+
         Gizmos.color = Color.green;
 
         for (int x = 0; x < Columns; x++)
         {
             for (int y = 0; y < Rows; y++)
             {
-                Vector3 pos = GetWorldPosition(x, y) + (Vector3.one * (CellSize / 2));
+                GridCell grabbedCell = GetCell(x, y);
+                Vector3 pos = grabbedCell.WorldPosition/*GetWorldPosition(x, y)*/ + (Vector3.one * (CellSize / 2));
+
+                if (grabbedCell.BuildableGridSpot)
+                    Gizmos.color = Color.gray;
+                if (grabbedCell.IsOccupied)
+                    Gizmos.color = Color.red;
 
                 Gizmos.DrawWireCube(pos, Vector3.one * CellSize);
             }
@@ -127,17 +148,20 @@ public class GridManager : MonoBehaviour
 [Serializable]
 public class GridCell
 {
-    internal int X;
-    internal int Y;
-    
+    public int Column { get; private set; }
+    public int Row { get; private set; }
+
     internal Vector3 WorldPosition;
     
     internal bool IsOccupied;
+    internal bool BuildableGridSpot;
 
     internal GridCell(int x, int y, Vector3 worldPosition)
     {
-        X = x;
-        Y = y;
+        Column = x;
+        Row = y;
         WorldPosition = worldPosition;
+
+        BuildableGridSpot = Column < GridManager.Instance.NonBuildingColumnLimits;
     }
 }

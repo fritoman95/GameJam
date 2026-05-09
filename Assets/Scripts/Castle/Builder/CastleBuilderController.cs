@@ -45,25 +45,31 @@ public class CastleBuilderController : MonoBehaviour
 
     void Update()
     {
-        if (_currentlySelectedPart == null)
+        if (GameManager.CurrentState != GameState.Building || _currentlySelectedPart == null)
             return;
 
         //Move the part to be over where the players mouse is
         MoveBuildPreviewObject();
-
-        //Assign the correct material based off whether the position it is over is a valid build spot
-        _buildPieceHighlight.AssignBuildHighlightMaterial();
-
-        if (Input.GetMouseButtonDown(0))
-            SpawnBuildingPiece(_currentlySelectedPart);
-        if (Input.GetMouseButtonDown(1))
-            AssignCurrentSelectedPart(null);
     }
 
     void MoveBuildPreviewObject()
     {
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Mathf.Infinity, _hittableLayers))
+        if(GridManager.CurrentlyHoveredOverCell != null)
+        {
+            _buildPieceHighlight.UpdatePiecesPosition(GridManager.CurrentlyHoveredOverCell.WorldPosition);
+
+            bool showValidMaterial = !GridManager.CurrentlyHoveredOverCell.IsOccupied &&
+                GameManager.Instance.Economy.CurrentMoneyValue >= _currentlySelectedPart.Part.BuildingStats.PartCost;
+
+            _buildPieceHighlight.AssignCorrectHighlightMaterial(showValidMaterial);
+            return;
+        }
+
+        if (Physics.Raycast(PlayerInputController.PlayersMouseRay, out RaycastHit hit, Mathf.Infinity, _hittableLayers))
+        {
             _buildPieceHighlight.UpdatePiecesPosition(hit.point);
+            _buildPieceHighlight.AssignCorrectHighlightMaterial(false);
+        }
     }
 
     public void AssignCurrentSelectedPart(PartInBuildMenu part)
@@ -72,26 +78,73 @@ public class CastleBuilderController : MonoBehaviour
         _buildPieceHighlight.AssignCurrentSelectedPart(_currentlySelectedPart);
     }
 
-    void SpawnBuildingPiece(PartInBuildMenu part)
+    public void SpawnBuildingPiece()
     {
-        if (_currentlySelectedPart == null)
+        if (!CanSpawnBuilding())
             return;
 
-        //BuildingParts newPart = GameObject.Instantiate(part);
+        GridCell cell = GridManager.CurrentlyHoveredOverCell;
+
+        BuildingParts buildingPart = Instantiate(_currentlySelectedPart.Part, cell.WorldPosition, Quaternion.identity);
+
+        buildingPart.InitializePart(cell);
+        GridManager.Instance.SaveGridCellCombo(cell, buildingPart);
+
+        GameManager.Instance.Economy.ChargeForPart(buildingPart.BuildingStats.PartCost);
+    }
+
+    bool CanSpawnBuilding()
+    {
+        if(GameManager.CurrentState != GameState.Building)
+        {
+            Debug.LogWarning($"Cannot Build, Not in build stateS");
+            return false;
+        }
+        if (_currentlySelectedPart == null)
+        {
+            Debug.LogWarning($"Cannot Build, No selected part");
+            return false;
+        }
+        if (GridManager.CurrentlyHoveredOverCell == null)
+        {
+            Debug.LogWarning($"Cannot Build, Not in a valid Cell");
+            return false;
+        }
+        else if (GridManager.CurrentlyHoveredOverCell.IsOccupied)
+        {
+            Debug.LogWarning($"Cannot Build, Cell is occupieds");
+            return false;
+        }
+        else if (GameManager.Instance.Economy.CurrentMoneyValue < _currentlySelectedPart.Part.BuildingStats.PartCost)
+        {
+            Debug.LogWarning($"Cannot Build, not enough money");
+            return false;
+        }
+
+        return true;
     }
 }
 
 public class BuildingParts : MonoBehaviour
 {
+    public GridCell BuildingPartsBuildCell;
+
     public BuildingPartsSO BuildingStats;
 
     public float CurrentHealth;
     public float CurrentDamage;
 
-    public void InitializePart()
+    public void InitializePart(GridCell partsCell)
     {
+        BuildingPartsBuildCell = partsCell;
+
         CurrentHealth = BuildingStats.MaxHealthPoints;
         CurrentDamage = BuildingStats.DamagePoints;
+    }
+
+    public void DestroyBuildPart()
+    {
+        GridManager.Instance.RemoveGridCellPair(BuildingPartsBuildCell);
     }
 }
 
@@ -120,16 +173,11 @@ public class BuildPieceHighlight
 
     internal void AssignCorrectHighlightMaterial(bool value)
     {
-
+        _buildHighlightRenderer.material = value ? _validBuildSpotMaterial : _invalidBuildSpotMaterial;
     }
 
     internal void UpdatePiecesPosition(Vector3 position)
     {
         _buildHighlightObject.transform.position = position;
-    }
-
-    internal void AssignBuildHighlightMaterial()
-    {
-        _buildHighlightObject.GetComponent<Renderer>().material = _validBuildSpotMaterial;
     }
 }

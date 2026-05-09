@@ -1,5 +1,4 @@
 using DG.Tweening;
-using TMPro;
 using UnityEngine;
 
 public class BuildMenuUIController : MonoBehaviour
@@ -21,8 +20,8 @@ public class BuildMenuUIController : MonoBehaviour
     [SerializeField]
     float _hidingTimerThreshold;
 
-    bool DetermineMouseInActivationThreshold => Camera.main.ScreenToViewportPoint(Input.mousePosition).y <= BuildMenuShowingActivationThreshold;
-    bool DetermineMouseInHidingThreshold => Camera.main.ScreenToViewportPoint(Input.mousePosition).y >= BuildMenuHidingThreshold;
+    bool DetermineMouseInActivationThreshold => PlayerInputController.PlayersMousePosition01.y >= 0 && PlayerInputController.PlayersMousePosition01.y <= BuildMenuShowingActivationThreshold;
+    bool DetermineMouseInHidingThreshold => PlayerInputController.PlayersMousePosition01.y >= BuildMenuHidingThreshold;
 
     [SerializeField]
     RectTransform _buildMenuMoveObject;
@@ -30,12 +29,8 @@ public class BuildMenuUIController : MonoBehaviour
     [SerializeField]
     AnimationCurve _buildMenuMoveAnimationCurve;
 
-    float _buildMenuMoveTime = .35f;
-
-    [SerializeField]
-    float _buildWindowInYValue = 0;
-    [SerializeField]
-    float _buildWindowOutYValue = 200;
+    const float BuildMenuMoveTime = .35f;
+    const float BuildWindowOutYValue = 200;
 
     Vector2 _buildWindowOriginPosition;
 
@@ -57,13 +52,16 @@ public class BuildMenuUIController : MonoBehaviour
         _buildWindowOriginPosition = _buildMenuMoveObject.anchoredPosition;
 
         Vector2 targetPosition = _buildWindowOriginPosition;
-        targetPosition.y -= _buildWindowOutYValue;
+        targetPosition.y -= BuildWindowOutYValue;
 
         MoveBuildWindowsPosition(targetPosition, useTime: false);
     }
 
     void Update()
     {
+        if (GameManager.CurrentState == GameState.NotPlaying ||GameManager.CurrentState == GameState.GameOver)
+            return;
+
         if (!_showingBuildMenu)
         {
             if(DetermineMouseInActivationThreshold)
@@ -98,7 +96,7 @@ public class BuildMenuUIController : MonoBehaviour
         _showingBuildMenu = false;
 
         Vector2 targetPosition = _buildWindowOriginPosition;
-        targetPosition.y -= _buildWindowOutYValue;
+        targetPosition.y -= BuildWindowOutYValue;
 
         MoveBuildWindowsPosition(targetPosition);
         UpdateCurrentBuildPartsUI(null);
@@ -110,7 +108,7 @@ public class BuildMenuUIController : MonoBehaviour
         if (_windowMoveTween != null || _windowMoveTween.IsActive())
             _windowMoveTween.Kill(false);
 
-        float moveTime = useTime ? _buildMenuMoveTime : 0;
+        float moveTime = useTime ? BuildMenuMoveTime : 0;
 
         _windowMoveTween = _buildMenuMoveObject.DOAnchorPos(position, moveTime).SetEase(_buildMenuMoveAnimationCurve);
     }

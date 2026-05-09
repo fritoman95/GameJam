@@ -39,7 +39,6 @@ public class PartInBuildMenu : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
     {
-        Debug.LogWarning($"Called in on pointer enter");
         BuildMenuUIController.Instance.UpdateCurrentBuildPartsUI(this);
     }
 
@@ -54,7 +53,5 @@ public class PartInBuildMenu : MonoBehaviour, IPointerClickHandler, IPointerEnte
         {
             //Show the current part tab
         }
-
-        Debug.LogWarning($"Called in on pointer exit");
     }
 }

@@ -8,6 +8,8 @@ public class BuildingPartsSO : ScriptableObject
     public float MaxHealthPoints;
     public float DamagePoints;
 
+    public int PartCost;
+
     public GameObject BuildingGameObject;
 
     [SerializeField]
