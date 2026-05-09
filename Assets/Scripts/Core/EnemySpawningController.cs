@@ -41,9 +41,15 @@ public class EnemySpawningController : MonoBehaviour
 
             //choose a random enemy to spawn
             BaseEnemy enemyToSpawn = _enemiesToSpawn[Random.Range(0, _enemiesToSpawn.Count)];
+            Vector3 spawnPosition = spawningCell.WorldPosition;
+
+            if (Physics.Raycast(spawnPosition, Vector3.down, out RaycastHit hit, 10, CastleBuilderController.Instance.HittableLayers))
+                spawnPosition.y = hit.point.y;
 
             //instantiate them (or pull from pool)
-            BaseEnemy enemy = Instantiate(enemyToSpawn, spawningCell.WorldPosition, Quaternion.identity);
+            BaseEnemy enemy = Instantiate(enemyToSpawn, spawnPosition, Quaternion.identity);
+
+            enemy.Intialize(spawningCell.Row);
 
             _enemiesInScene.Add(enemy);
         }).SetLoops(-1);

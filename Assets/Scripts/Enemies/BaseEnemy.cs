@@ -4,6 +4,8 @@ using UnityEngine;
 [Serializable]
 public class BaseEnemy : MonoBehaviour, IHealthSystem
 {
+    public int Row;
+
     [SerializeField]
     EnemyStatsSO _stats;
 
@@ -21,13 +23,15 @@ public class BaseEnemy : MonoBehaviour, IHealthSystem
 
     float _currentAttackTimer;
 
-    void Awake()
-    {
-        Intialize();
-    }
+    bool _isWalking;
 
-    public void Intialize()
+    [SerializeField]
+    Animator _enemyAnimator;
+
+    public void Intialize(int row)
     {
+        Row = row;
+
         SetHealthValues();
         
         MaxSpeed = _stats.Speed;
@@ -37,35 +41,49 @@ public class BaseEnemy : MonoBehaviour, IHealthSystem
 
         AttackRange = _stats.AttackRange;
         AttackSpeed = _stats.AttackSpeed;
+
+        _targettedBuildingPart = GridManager.Instance.GetFirstCellInRowWithTower(Row);
     }
 
     void Update()
     {
-        float distanceToTarget = Vector3.Distance(transform.position, _targettedBuildingPart.transform.position);
+        if (_targettedBuildingPart != null)
+        {
+            float distanceToTarget = Vector3.Distance(transform.position, _targettedBuildingPart.transform.position);
 
-        //have the enemymove down the lane
-        if (distanceToTarget < AttackRange)
-            MoveDownLane();
-        //when they get in range to attack, attack the enemy
+            //have the enemymove down the lane
+            if (distanceToTarget > AttackRange)
+                MoveAcrossLane();
+            //when they get in range to attack, attack the enemy
+            else
+                AttackEnemy();
+        }
         else
-            AttackEnemy();
+            MoveAcrossLane();
+
+        _enemyAnimator.SetBool("Walking", _isWalking);
     }
 
-    public void MoveDownLane()
+    public void MoveAcrossLane()
     {
         transform.position += Vector3.right * CurrentSpeed * Time.deltaTime;
+
+        _isWalking = true;
 
         _currentAttackTimer = 0;
     }
 
     public void AttackEnemy()
     {
+        _isWalking = false;
         _currentAttackTimer += Time.deltaTime;
 
         if(_currentAttackTimer >= AttackSpeed)
         {
             _currentAttackTimer = 0;
+
             _targettedBuildingPart.OnHealthChangeEvent(-Damage);
+            _enemyAnimator.SetTrigger("Attack");
         }
     }
 

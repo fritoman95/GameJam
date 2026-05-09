@@ -24,8 +24,7 @@ public class CastleBuilderController : MonoBehaviour
     }
 
     [Header("Highlight Objects Parameters")]
-    [SerializeField]
-    LayerMask _hittableLayers;
+    public LayerMask HittableLayers;
 
     [SerializeField]
     BuildPieceHighlight _buildPieceHighlight;
@@ -65,7 +64,7 @@ public class CastleBuilderController : MonoBehaviour
             return;
         }
 
-        if (Physics.Raycast(PlayerInputController.PlayersMouseRay, out RaycastHit hit, Mathf.Infinity, _hittableLayers))
+        if (Physics.Raycast(PlayerInputController.PlayersMouseRay, out RaycastHit hit, Mathf.Infinity, HittableLayers))
         {
             _buildPieceHighlight.UpdatePiecesPosition(hit.point);
             _buildPieceHighlight.AssignCorrectHighlightMaterial(false);

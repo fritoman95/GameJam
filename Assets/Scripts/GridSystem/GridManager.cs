@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour
@@ -9,6 +10,9 @@ public class GridManager : MonoBehaviour
 
     [SerializeField]
     GridCell[,] _grid;
+
+    [SerializeField]
+    List<GridCell> _cells = new List<GridCell>();
 
     [Header("Grid Parameters")]
     //Was CellWidth
@@ -25,8 +29,7 @@ public class GridManager : MonoBehaviour
     [SerializeField]
     Dictionary<GridCell, BuildingParts> _gridAndBuildingPieceDictionary;
 
-    [SerializeField]
-    List<GridCell> _cells = new List<GridCell>();
+
     [SerializeField]
     List<BuildingParts> _buildingParts = new List<BuildingParts>();
 
@@ -68,7 +71,10 @@ public class GridManager : MonoBehaviour
             {
                 Vector3 worldPos = GetWorldPosition(x, y) + (Vector3.one * (CellSize / 2));
 
-                _grid[x, y] = new GridCell(x, y, worldPos);
+                GridCell thisCell = new GridCell(x, y, worldPos);
+
+                _grid[x, y] = thisCell;
+                _cells.Add(thisCell);
             }
         }
     }
@@ -113,6 +119,16 @@ public class GridManager : MonoBehaviour
         y = Mathf.FloorToInt(offset.z / CellSize);
 
         return x >= 0 && y >= 0 && x < Columns && y < Rows;
+    }
+
+    public BuildingParts GetFirstCellInRowWithTower(int row)
+    {
+        GridCell firstOccupiedCellInRow = _cells.Where(x => x.Row == row).ToList().FirstOrDefault(x => x.IsOccupied);
+
+        if (firstOccupiedCellInRow != null)
+            return _gridAndBuildingPieceDictionary.GetValueOrDefault(firstOccupiedCellInRow);
+        else
+            return null;
     }
 
     void OnDrawGizmosSelected()
