@@ -1,3 +1,5 @@
+using DG.Tweening;
+using TMPro;
 using UnityEngine;
 
 public class BuildMenuUIController : MonoBehaviour
@@ -22,6 +24,23 @@ public class BuildMenuUIController : MonoBehaviour
     bool DetermineMouseInActivationThreshold => Camera.main.ScreenToViewportPoint(Input.mousePosition).y <= BuildMenuShowingActivationThreshold;
     bool DetermineMouseInHidingThreshold => Camera.main.ScreenToViewportPoint(Input.mousePosition).y >= BuildMenuHidingThreshold;
 
+    [SerializeField]
+    RectTransform _buildMenuMoveObject;
+
+    [SerializeField]
+    AnimationCurve _buildMenuMoveAnimationCurve;
+
+    float _buildMenuMoveTime = .35f;
+
+    [SerializeField]
+    float _buildWindowInYValue = 0;
+    [SerializeField]
+    float _buildWindowOutYValue = 200;
+
+    Vector2 _buildWindowOriginPosition;
+
+    Tween _windowMoveTween;
+
     void Awake()
     {
         if (Instance == null)
@@ -34,6 +53,13 @@ public class BuildMenuUIController : MonoBehaviour
     {
         //initialize everything the UI will need here
         _subPanelController.Initialize();
+
+        _buildWindowOriginPosition = _buildMenuMoveObject.anchoredPosition;
+
+        Vector2 targetPosition = _buildWindowOriginPosition;
+        targetPosition.y -= _buildWindowOutYValue;
+
+        MoveBuildWindowsPosition(targetPosition, useTime: false);
     }
 
     void Update()
@@ -52,19 +78,18 @@ public class BuildMenuUIController : MonoBehaviour
         }
     }
 
-    void ShowBuildMenu()
-    {
-        _showingBuildMenu = true;
-
-        //Move the window into place
-
-        ToggleBuildingUIInteractivity(true);
-    }
-
     void ToggleBuildingUIInteractivity(bool value)
     {
         //Turn on the window and allow the player to grab the parts
         CastleBuilderController.Instance.ListOfParts.ForEach(x => x.ToggleClickability(value));
+    }
+
+    void ShowBuildMenu()
+    {
+        _showingBuildMenu = true;
+
+        MoveBuildWindowsPosition(_buildWindowOriginPosition);
+        ToggleBuildingUIInteractivity(true);
     }
 
     void HideBuildMenu()
@@ -72,10 +97,22 @@ public class BuildMenuUIController : MonoBehaviour
         _currentHidingTimer = 0;
         _showingBuildMenu = false;
 
+        Vector2 targetPosition = _buildWindowOriginPosition;
+        targetPosition.y -= _buildWindowOutYValue;
+
+        MoveBuildWindowsPosition(targetPosition);
         UpdateCurrentBuildPartsUI(null);
         ToggleBuildingUIInteractivity(false);
+    }
 
-        //Move the window down
+    void MoveBuildWindowsPosition(Vector2 position, bool useTime = true)
+    {
+        if (_windowMoveTween != null || _windowMoveTween.IsActive())
+            _windowMoveTween.Kill(false);
+
+        float moveTime = useTime ? _buildMenuMoveTime : 0;
+
+        _windowMoveTween = _buildMenuMoveObject.DOAnchorPos(position, moveTime).SetEase(_buildMenuMoveAnimationCurve);
     }
 
     public void UpdateCurrentBuildPartsUI(PartInBuildMenu part)

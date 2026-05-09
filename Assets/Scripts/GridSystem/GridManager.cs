@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class GridManager : MonoBehaviour
 {
@@ -75,7 +76,7 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < Rows; y++)
             {
-                Vector3 worldPos = GetWorldPosition(x, y);
+                Vector3 worldPos = GetWorldPosition(x, y) + (Vector3.one * (CellSize / 2));
 
                 _grid[x, y] = new GridCell(x, y, worldPos);
             }
@@ -110,9 +111,7 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < Rows; y++)
             {
-                Vector3 pos = GetWorldPosition(x, y);
-
-                pos += Vector3.one * (CellSize / 2);
+                Vector3 pos = GetWorldPosition(x, y) + (Vector3.one * (CellSize / 2));
 
                 Gizmos.DrawWireCube(pos, Vector3.one * CellSize);
             }

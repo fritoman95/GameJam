@@ -404,6 +404,8 @@ MonoBehaviour:
   Rows: 3
   Columns: 8
   CellSize: 5
+  cellsList: []
+  BuildingParts: []
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1338,7 +1340,43 @@ MonoBehaviour:
     _damageValue: {fileID: 191236209}
   _showingBuildMenu: 0
   _currentHidingTimer: 0
-  _hidingTimerThreshold: 5
+  _hidingTimerThreshold: 2
+  _buildMenuMoveObject: {fileID: 434991883}
+  _buildMenuMoveAnimationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1.4996912
+      outSlope: 1.4996912
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.09317621
+    - serializedVersion: 3
+      time: 0.8224812
+      value: 1.0403901
+      inSlope: 0.6707179
+      outSlope: 0.6707179
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.054003246
+      outWeight: 0.3176219
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: -1.9027193
+      outSlope: -1.9027193
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.26649722
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _buildWindowInYValue: 0
+  _buildWindowOutYValue: 200
 --- !u!1 &968039917
 GameObject:
   m_ObjectHideFlags: 0
