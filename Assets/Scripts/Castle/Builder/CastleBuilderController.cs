@@ -54,7 +54,7 @@ public class CastleBuilderController : MonoBehaviour
 
     void MoveBuildPreviewObject()
     {
-        if(GridManager.CurrentlyHoveredOverCell != null)
+        if(GridManager.CurrentlyHoveredOverCell != null && !GridManager.CurrentlyHoveredOverCell.NonBuildableSpot)
         {
             _buildPieceHighlight.UpdatePiecesPosition(GridManager.CurrentlyHoveredOverCell.WorldPosition);
 
@@ -113,6 +113,11 @@ public class CastleBuilderController : MonoBehaviour
         else if (GridManager.CurrentlyHoveredOverCell.IsOccupied)
         {
             Debug.LogWarning($"Cannot Build, Cell is occupieds");
+            return false;
+        }
+        else if (GridManager.CurrentlyHoveredOverCell.NonBuildableSpot)
+        {
+            Debug.LogWarning($"Cannot Build, Cell is notBuildable");
             return false;
         }
         else if (GameManager.Instance.Economy.CurrentMoneyValue < _currentlySelectedPart.Part.BuildingStats.PartCost)

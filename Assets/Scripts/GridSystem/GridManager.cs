@@ -127,12 +127,14 @@ public class GridManager : MonoBehaviour
             for (int y = 0; y < Rows; y++)
             {
                 GridCell grabbedCell = GetCell(x, y);
-                Vector3 pos = grabbedCell.WorldPosition/*GetWorldPosition(x, y)*/ + (Vector3.one * (CellSize / 2));
+                Vector3 pos = grabbedCell.WorldPosition/*GetWorldPosition(x, y)*//* + (Vector3.one * (CellSize / 2))*/;
 
-                if (grabbedCell.BuildableGridSpot)
+                if (grabbedCell.NonBuildableSpot)
                     Gizmos.color = Color.gray;
                 if (grabbedCell.IsOccupied)
                     Gizmos.color = Color.red;
+                if(!grabbedCell.NonBuildableSpot && !grabbedCell.IsOccupied)
+                    Gizmos.color = Color.green;
 
                 Gizmos.DrawWireCube(pos, Vector3.one * CellSize);
             }
@@ -154,7 +156,7 @@ public class GridCell
     internal Vector3 WorldPosition;
     
     internal bool IsOccupied;
-    internal bool BuildableGridSpot;
+    internal bool NonBuildableSpot;
 
     internal GridCell(int x, int y, Vector3 worldPosition)
     {
@@ -162,6 +164,6 @@ public class GridCell
         Row = y;
         WorldPosition = worldPosition;
 
-        BuildableGridSpot = Column < GridManager.Instance.NonBuildingColumnLimits;
+        NonBuildableSpot = Column < GridManager.Instance.NonBuildingColumnLimits;
     }
 }
