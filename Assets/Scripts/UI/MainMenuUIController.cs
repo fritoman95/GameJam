@@ -35,13 +35,13 @@ public class MainMenuUIController : MonoBehaviour
 
     void ShowMainMenu()
     {
+        _growingPanelTween?.Kill(true);
         _growingPanelTween = _mainMenuGameObject.transform.DOScale(Vector3.one, _growPanelTime).SetEase(_mainMenuGrowCurve);
     }
 
     void HideMainMenu(bool snap = false)
     {
-        if (_growingPanelTween != null && _growingPanelTween.IsActive())
-            _growingPanelTween.Kill(false);
+        _growingPanelTween?.Kill(true);
 
         if(snap)
         {
