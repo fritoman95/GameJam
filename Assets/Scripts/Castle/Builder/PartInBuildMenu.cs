@@ -10,14 +10,12 @@ public class PartInBuildMenu : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     RawImage _partTexture;
 
-    Collider _collider;
-
+    [SerializeField]
     bool _canBeClicked;
 
     public void Initialize()
     {
         _partTexture = GetComponent<RawImage>();
-        _collider = GetComponent<Collider>();
 
         _partTexture.texture = Part.BuildingStats.UISprite;
     }
@@ -29,22 +27,23 @@ public class PartInBuildMenu : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void PartClicked()
     {
-        CastleBuilderController.Instance.ClickPart(this);
+        if(_canBeClicked)
+            CastleBuilderController.Instance.AssignCurrentSelectedPart(this);
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
     {
-        Debug.LogWarning($"Called in on pointer click");
-        PartClicked();
+        if (_canBeClicked)
+            PartClicked();
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
     {
         Debug.LogWarning($"Called in on pointer enter");
-        CastleBuilderController.Instance.UpdateCurrentBuildPartsUI(this);
+        BuildMenuUIController.Instance.UpdateCurrentBuildPartsUI(this);
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
     {
         if(CastleBuilderController.Instance.CurrentlySelectedPart == null)
         {

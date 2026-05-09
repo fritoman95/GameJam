@@ -1,6 +1,5 @@
+using System;
 using System.Collections.Generic;
-using TMPro;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class CastleBuilderController : MonoBehaviour
@@ -8,31 +7,28 @@ public class CastleBuilderController : MonoBehaviour
     public static CastleBuilderController Instance;
 
     [SerializeField]
-    List<PartInBuildMenu> _listOfParts;
+    PartInBuildMenu _currentlySelectedPart;
+    public PartInBuildMenu CurrentlySelectedPart
+    {
+        get { return _currentlySelectedPart; }
+        set { _currentlySelectedPart = value; }
+    }
 
     [SerializeField]
-    Material _validBuildSpotMaterial;
-    [SerializeField]
-    Material _invalidBuildSpotMaterial;
+    List<PartInBuildMenu> _listOfParts;
+
+    public List<PartInBuildMenu> ListOfParts 
+    { 
+        get { return _listOfParts; }
+        private set { _listOfParts = value; }
+    }
 
     [Header("Highlight Objects Parameters")]
     [SerializeField]
     LayerMask _hittableLayers;
 
     [SerializeField]
-    GameObject _buildHighlightObject;
-    [SerializeField]
-    MeshFilter _buildHighlightMeshFilter;
-
-    [SerializeField]
-    TextMeshProUGUI _partName;
-    [SerializeField]
-    TextMeshProUGUI _healthValue;
-    [SerializeField]
-    TextMeshProUGUI _damageValue;
-
-    PartInBuildMenu _currentlySelectedPart;
-    public PartInBuildMenu CurrentlySelectedPart => _currentlySelectedPart;
+    BuildPieceHighlight _buildPieceHighlight;
 
     void Awake()
     {
@@ -49,79 +45,31 @@ public class CastleBuilderController : MonoBehaviour
 
     void Update()
     {
-        if(_currentlySelectedPart != null)
-        {
-            //Move the part to be over where the players mouse is
-            MoveBuildPreviewObject();
+        if (_currentlySelectedPart == null)
+            return;
 
-            //Assign the correct material based off whether the position it is over is a valid build spot
-            AssignBuildHighlightMaterial();
+        //Move the part to be over where the players mouse is
+        MoveBuildPreviewObject();
 
-            if(Input.GetMouseButtonDown(0))
-                SpawnBuildingPiece(_currentlySelectedPart);
-        }
+        //Assign the correct material based off whether the position it is over is a valid build spot
+        _buildPieceHighlight.AssignBuildHighlightMaterial();
+
+        if (Input.GetMouseButtonDown(0))
+            SpawnBuildingPiece(_currentlySelectedPart);
+        if (Input.GetMouseButtonDown(1))
+            AssignCurrentSelectedPart(null);
     }
 
     void MoveBuildPreviewObject()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, _hittableLayers))
-        {
-            _buildHighlightObject.transform.position = hit.point;
-
-            Debug.Log("Hit: " + hit.transform.name);
-            Debug.DrawLine(ray.origin, hit.point, Color.red);
-        }
-
-        //Make a raycast that will shoot towards the ground
-
-        //Move the highlightObject to the position;
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Mathf.Infinity, _hittableLayers))
+            _buildPieceHighlight.UpdatePiecesPosition(hit.point);
     }
 
-    void AssignBuildHighlightMaterial()
-    {
-        _buildHighlightObject.GetComponent<Renderer>().material = _validBuildSpotMaterial;
-    }
-
-    public void ShowPartSubWindow()
-    {
-        //assign subwindow assets
-
-        //Pop up part subwindow
-    }
-    
-    public void HidePartSubWindow()
-    {
-        //hide part subwindow
-    }
-
-    void EnableBuildingWindow()
-    {
-        //Turn on the window and allow the player to grab the parts
-        _listOfParts.ForEach(x => x.ToggleClickability(true));
-    }
-
-    public void ClickPart(PartInBuildMenu part)
+    public void AssignCurrentSelectedPart(PartInBuildMenu part)
     {
         _currentlySelectedPart = part;
-
-        _buildHighlightMeshFilter = _currentlySelectedPart.Part.BuildingStats.PartMeshFilter;
-
-
-    }
-
-    public void UpdateCurrentBuildPartsUI(PartInBuildMenu part)
-    {
-        _partName.text = part.Part.BuildingStats.name;
-        _healthValue.text = part.Part.BuildingStats.MaxHealthPoints.ToString();
-        _damageValue.text = part.Part.BuildingStats.DamagePoints.ToString();
-    }
-
-    void DropPart(PartInBuildMenu part)
-    {
-        //SpawnBuildingPiece
+        _buildPieceHighlight.AssignCurrentSelectedPart(_currentlySelectedPart);
     }
 
     void SpawnBuildingPiece(PartInBuildMenu part)
@@ -140,13 +88,48 @@ public class BuildingParts : MonoBehaviour
     public float CurrentHealth;
     public float CurrentDamage;
 
-    void Start()
-    {
-    }
-
     public void InitializePart()
     {
         CurrentHealth = BuildingStats.MaxHealthPoints;
         CurrentDamage = BuildingStats.DamagePoints;
+    }
+}
+
+[Serializable]
+public class BuildPieceHighlight
+{
+    [SerializeField]
+    GameObject _buildHighlightObject;
+    [SerializeField]
+    MeshFilter _buildHighlightMeshFilter;
+    [SerializeField]
+    Renderer _buildHighlightRenderer;
+
+    [SerializeField]
+    Material _validBuildSpotMaterial;
+    [SerializeField]
+    Material _invalidBuildSpotMaterial;
+
+    internal void AssignCurrentSelectedPart(PartInBuildMenu part)
+    {
+        if(part != null)
+            _buildHighlightMeshFilter = part.Part.BuildingStats.PartMeshFilter;
+
+        _buildHighlightRenderer.enabled = part != null;
+    }
+
+    internal void AssignCorrectHighlightMaterial(bool value)
+    {
+
+    }
+
+    internal void UpdatePiecesPosition(Vector3 position)
+    {
+        _buildHighlightObject.transform.position = position;
+    }
+
+    internal void AssignBuildHighlightMaterial()
+    {
+        _buildHighlightObject.GetComponent<Renderer>().material = _validBuildSpotMaterial;
     }
 }
