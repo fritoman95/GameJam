@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 421c0ac39fca4104e822a01a7ff256c7, type: 3}
+  m_Name: WallSO
+  m_EditorClassIdentifier: 
+  BuildingPartName: Wall
+  MaxHealthPoints: 0
+  DamagePoints: 0
+  BuildingGameObject: {fileID: 5351482176554536685, guid: db9a78972695d3f40a4ef9dae73ce376, type: 3}
+  UISprite: {fileID: 2800000, guid: d6f5b78dc2cf2ea4e96681cad7476bbd, type: 3}
