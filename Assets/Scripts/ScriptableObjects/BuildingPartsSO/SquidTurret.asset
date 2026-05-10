@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 421c0ac39fca4104e822a01a7ff256c7, type: 3}
-  m_Name: WallSO
+  m_Name: SquidTurret
   m_EditorClassIdentifier: 
-  BuildingPartName: Wall
-  MaxHealthPoints: 20
-  DamagePoints: 0
-  PartCost: 10
-  BuildingGameObject: {fileID: 5351482176554536685, guid: db9a78972695d3f40a4ef9dae73ce376, type: 3}
+  BuildingPartName: Squid Tower
+  MaxHealthPoints: 10
+  DamagePoints: 3
+  PartCost: 20
+  BuildingGameObject: {fileID: 0}
   PartMeshFilter: {fileID: 0}
-  UISprite: {fileID: 2800000, guid: d6f5b78dc2cf2ea4e96681cad7476bbd, type: 3}
+  UISprite: {fileID: 0}

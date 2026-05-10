@@ -138,7 +138,9 @@ public class BuildingParts : MonoBehaviour, IHealthSystem
     public float CurrentHealth;
     public float CurrentDamage;
 
-    public void InitializePart(GridCell partsCell)
+    public int NumberOfCellsInFrontThatAreHittable;
+
+    public virtual void InitializePart(GridCell partsCell)
     {
         BuildingPartsBuildCell = partsCell;
 
@@ -165,7 +167,7 @@ public class BuildingParts : MonoBehaviour, IHealthSystem
     {
         //Play a death animation
         GridManager.Instance.RemoveGridCellPair(BuildingPartsBuildCell);
-        Destroy(this);
+        Destroy(gameObject);
     }
 }
 

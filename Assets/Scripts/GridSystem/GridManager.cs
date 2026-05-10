@@ -14,21 +14,26 @@ public class GridManager : MonoBehaviour
     [SerializeField]
     List<GridCell> _cells = new List<GridCell>();
 
+    [SerializeField]
+    GameObject _buildableFloor;
+    [SerializeField]
+    List<Material> _buildableSpotMaterials;
+
+    Vector3 _buildableFloorSize = new Vector3(5, .01f, 5);
+
     [Header("Grid Parameters")]
     //Was CellWidth
     public int Rows;
     //Was CellHeight
     public int Columns;
 
-    [SerializeField]
-    float CellSize = 5;
+    public float CellSize = 5;
 
     [Header("NonBuilding Grid Parameters")]
     public int NonBuildingColumnLimits;
 
     [SerializeField]
     Dictionary<GridCell, BuildingParts> _gridAndBuildingPieceDictionary;
-
 
     [SerializeField]
     List<BuildingParts> _buildingParts = new List<BuildingParts>();
@@ -65,13 +70,27 @@ public class GridManager : MonoBehaviour
     {
         _grid = new GridCell[Columns, Rows];
 
+        int numberOfSpawns = 0;
+
         for (int x = 0; x < Columns; x++)
         {
             for (int y = 0; y < Rows; y++)
             {
+                numberOfSpawns++;
+
                 Vector3 worldPos = GetWorldPosition(x, y) + (Vector3.one * (CellSize / 2));
 
                 GridCell thisCell = new GridCell(x, y, worldPos);
+
+                Vector3 spawnPoint = thisCell.WorldPosition;
+                spawnPoint.y = 0;
+
+                if(!thisCell.NonBuildableSpot)
+                {
+                    GameObject floor = Instantiate(_buildableFloor, spawnPoint, Quaternion.identity);
+                    floor.GetComponent<Renderer>().material = _buildableSpotMaterials[numberOfSpawns % 2];
+                    floor.transform.localScale = _buildableFloorSize;
+                }
 
                 _grid[x, y] = thisCell;
                 _cells.Add(thisCell);

@@ -46,13 +46,16 @@ public class EnemySpawningController : MonoBehaviour
             if (Physics.Raycast(spawnPosition, Vector3.down, out RaycastHit hit, 10, CastleBuilderController.Instance.HittableLayers))
                 spawnPosition.y = hit.point.y;
 
+            spawnPosition.x += Random.Range(-1.5f, 1.5f);
+            spawnPosition.z += Random.Range(-1.5f, 1.5f);
+
             //instantiate them (or pull from pool)
             BaseEnemy enemy = Instantiate(enemyToSpawn, spawnPosition, Quaternion.identity);
 
             enemy.Intialize(spawningCell.Row);
 
             _enemiesInScene.Add(enemy);
-        })/*.SetLoops(-1)*/;
+        }).SetLoops(-1);
     }
 
     public void StopSpawningEnemies()
