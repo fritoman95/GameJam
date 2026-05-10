@@ -6,5 +6,5 @@ public interface IHealthSystem
 
     public void OnDieEvent();
 
-    public void OnHealthChangeEvent(int difference);
+    public bool OnHealthChangeEvent(int difference);
 }

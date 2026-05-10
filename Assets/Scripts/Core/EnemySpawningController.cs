@@ -52,7 +52,7 @@ public class EnemySpawningController : MonoBehaviour
             enemy.Intialize(spawningCell.Row);
 
             _enemiesInScene.Add(enemy);
-        }).SetLoops(-1);
+        })/*.SetLoops(-1)*/;
     }
 
     public void StopSpawningEnemies()

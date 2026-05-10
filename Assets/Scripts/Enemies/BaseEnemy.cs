@@ -18,7 +18,7 @@ public class BaseEnemy : MonoBehaviour, IHealthSystem
     public int CurrentSpeed;
     public int Damage;
 
-    public int AttackRange;
+    public float AttackRange;
     public int AttackSpeed;
 
     float _currentAttackTimer;
@@ -51,6 +51,8 @@ public class BaseEnemy : MonoBehaviour, IHealthSystem
         {
             float distanceToTarget = Vector3.Distance(transform.position, _targettedBuildingPart.transform.position);
 
+            Debug.LogWarning($"distanceToTarget: {distanceToTarget}, distanceToTarget > AttackRange: {distanceToTarget > AttackRange}");
+
             //have the enemymove down the lane
             if (distanceToTarget > AttackRange)
                 MoveAcrossLane();
@@ -82,7 +84,9 @@ public class BaseEnemy : MonoBehaviour, IHealthSystem
         {
             _currentAttackTimer = 0;
 
-            _targettedBuildingPart.OnHealthChangeEvent(-Damage);
+            if (_targettedBuildingPart.OnHealthChangeEvent(-Damage))
+                _targettedBuildingPart = GridManager.Instance.GetFirstCellInRowWithTower(Row);
+
             _enemyAnimator.SetTrigger("Attack");
         }
     }
@@ -98,22 +102,20 @@ public class BaseEnemy : MonoBehaviour, IHealthSystem
     /// negative numbers is damage, positive is healing
     /// </summary>
     /// <param name="difference"></param>
-    public void OnHealthChangeEvent(int difference)
+    public bool OnHealthChangeEvent(int difference)
     {
         CurrentHealth += difference;
 
         if (CurrentHealth <= 0)
             OnDieEvent();
+
+        return CurrentHealth <= 0;
     }
 
     public void OnDieEvent()
     {
-        //Send object back to pool
-
         //Stop movement or attacking if doing that
 
         //reward money
     }
-
-
 }

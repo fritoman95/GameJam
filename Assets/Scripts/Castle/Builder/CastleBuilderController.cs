@@ -151,19 +151,21 @@ public class BuildingParts : MonoBehaviour, IHealthSystem
         CurrentDamage = BuildingStats.DamagePoints;
     }
 
-    public void OnHealthChangeEvent(int difference)
+    public bool OnHealthChangeEvent(int difference)
     {
         CurrentHealth += difference;
 
         if (CurrentHealth <= 0)
             OnDieEvent();
+
+        return CurrentHealth <= 0;
     }
 
     public void OnDieEvent()
     {
         //Play a death animation
-        Destroy(this);
         GridManager.Instance.RemoveGridCellPair(BuildingPartsBuildCell);
+        Destroy(this);
     }
 }
 

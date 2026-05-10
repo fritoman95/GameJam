@@ -9,6 +9,6 @@ public class EnemyStatsSO : ScriptableObject
 
     public int Damage;
 
-    public int AttackRange;
+    public float AttackRange;
     public int AttackSpeed;
 }
