@@ -5,8 +5,8 @@ public class BuildingPartsSO : ScriptableObject
 {
     public string BuildingPartName;
 
-    public float MaxHealthPoints;
-    public float DamagePoints;
+    public int MaxHealthPoints;
+    public int DamagePoints;
 
     public float AttackTime;
 
@@ -18,4 +18,6 @@ public class BuildingPartsSO : ScriptableObject
     public MeshFilter PartMeshFilter;
 
     public Texture2D UISprite;
+    public float ResizeValue;
+    public float HighlightObjectVeritcalOffset;
 }

@@ -48,5 +48,4 @@ public class GameManager : MonoBehaviour
     {
         CurrentState = desiredGameState;
     }
-
 }

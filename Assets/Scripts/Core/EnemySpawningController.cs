@@ -32,7 +32,6 @@ public class EnemySpawningController : MonoBehaviour
     public void StartSpawningEnemies()
     {
         _spawningSequence = DOTween.Sequence();
-
         _spawningSequence.AppendInterval(_standardSpawnRate).AppendCallback(() =>
         {
             //Get a random lane from the grid editor

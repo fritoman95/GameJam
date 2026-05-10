@@ -15,7 +15,12 @@ public class EconomyController
     internal void ChargeForPart(int value)
     {
         CurrentMoneyValue -= value;
+        EconomyUI.Instance.UpdateMoneyAmount();
+    }
 
+    internal void RewardMoney(int value)
+    {
+        CurrentMoneyValue += value;
         EconomyUI.Instance.UpdateMoneyAmount();
     }
 }

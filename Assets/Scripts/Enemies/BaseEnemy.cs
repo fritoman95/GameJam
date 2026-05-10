@@ -47,11 +47,12 @@ public class BaseEnemy : MonoBehaviour, IHealthSystem
 
     void Update()
     {
+        if(_targettedBuildingPart == null)
+            _targettedBuildingPart = GridManager.Instance.GetFirstCellInRowWithTower(Row);
+
         if (_targettedBuildingPart != null)
         {
             float distanceToTarget = Vector3.Distance(transform.position, _targettedBuildingPart.transform.position);
-
-            Debug.LogWarning($"distanceToTarget: {distanceToTarget}, distanceToTarget > AttackRange: {distanceToTarget > AttackRange}");
 
             //have the enemymove down the lane
             if (distanceToTarget > AttackRange)
@@ -115,7 +116,9 @@ public class BaseEnemy : MonoBehaviour, IHealthSystem
     public void OnDieEvent()
     {
         //Stop movement or attacking if doing that
+        Destroy(gameObject);
 
         //reward money
+        GameManager.Instance.Economy.RewardMoney(_stats.KillReward);
     }
 }

@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: WallSO
   m_EditorClassIdentifier: 
   BuildingPartName: Wall
-  MaxHealthPoints: 20
+  MaxHealthPoints: 50
   DamagePoints: 0
+  AttackTime: 0
   PartCost: 10
   BuildingGameObject: {fileID: 5351482176554536685, guid: db9a78972695d3f40a4ef9dae73ce376, type: 3}
-  PartMeshFilter: {fileID: 0}
+  PartMeshFilter: {fileID: -5754084199372789682, guid: 0304892c9c24f7048bf00932af9352ef, type: 3}
   UISprite: {fileID: 2800000, guid: d6f5b78dc2cf2ea4e96681cad7476bbd, type: 3}
+  ResizeValue: 2.5
+  HighlightObjectVeritcalOffset: 2.5

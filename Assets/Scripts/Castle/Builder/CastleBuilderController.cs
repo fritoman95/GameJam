@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class CastleBuilderController : MonoBehaviour
@@ -73,6 +74,8 @@ public class CastleBuilderController : MonoBehaviour
 
     public void AssignCurrentSelectedPart(PartInBuildMenu part)
     {
+        Debug.LogWarning($"Part: {part}");
+
         _currentlySelectedPart = part;
         _buildPieceHighlight.AssignCurrentSelectedPart(_currentlySelectedPart);
     }
@@ -136,7 +139,7 @@ public class BuildingParts : MonoBehaviour, IHealthSystem
     public BuildingPartsSO BuildingStats;
 
     public float CurrentHealth;
-    public float CurrentDamage;
+    public int CurrentDamage;
 
     public int NumberOfCellsInFrontThatAreHittable;
 
@@ -174,6 +177,8 @@ public class BuildingParts : MonoBehaviour, IHealthSystem
 [Serializable]
 public class BuildPieceHighlight
 {
+    PartInBuildMenu _part;
+
     [SerializeField]
     GameObject _buildHighlightObject;
     [SerializeField]
@@ -188,19 +193,36 @@ public class BuildPieceHighlight
 
     internal void AssignCurrentSelectedPart(PartInBuildMenu part)
     {
-        if(part != null)
-            _buildHighlightMeshFilter = part.Part.BuildingStats.PartMeshFilter;
+        _part = part;
+        if (_part != null)
+        {
+            _buildHighlightMeshFilter.sharedMesh = _part.Part.BuildingStats.PartMeshFilter.sharedMesh;
+            _buildHighlightObject.transform.localScale = Vector3.one * _part.Part.BuildingStats.ResizeValue;
+        }
 
-        _buildHighlightRenderer.enabled = part != null;
+        _buildHighlightRenderer.enabled = _part != null;
     }
 
     internal void AssignCorrectHighlightMaterial(bool value)
     {
-        _buildHighlightRenderer.material = value ? _validBuildSpotMaterial : _invalidBuildSpotMaterial;
+        int subMeshCount = _buildHighlightMeshFilter.sharedMesh.subMeshCount;
+
+        // Create material array matching submesh count
+        Material[] mats = new Material[subMeshCount];
+
+        // Fill every slot with same material
+        for (int i = 0; i < subMeshCount; i++)
+        {
+            mats[i] = value ? _validBuildSpotMaterial : _invalidBuildSpotMaterial;
+        }
+
+        // Apply materials
+        _buildHighlightRenderer.sharedMaterials = mats;
     }
 
     internal void UpdatePiecesPosition(Vector3 position)
     {
+        position.y += _part.Part.BuildingStats.HighlightObjectVeritcalOffset;
         _buildHighlightObject.transform.position = position;
     }
 }
