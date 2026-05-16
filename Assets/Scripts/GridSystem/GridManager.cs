@@ -78,7 +78,7 @@ public class GridManager : MonoBehaviour
             {
                 numberOfSpawns++;
 
-                Vector3 worldPos = GetWorldPosition(x, y) + (Vector3.one * (CellSize / 2));
+                Vector3 worldPos = GetWorldPosition(x, y);
 
                 GridCell thisCell = new GridCell(x, y, worldPos);
 
@@ -122,12 +122,22 @@ public class GridManager : MonoBehaviour
 
     Vector3 GetWorldPosition(int x, int y)
     {
-        return transform.position + new Vector3(x * CellSize, 0, y * CellSize);
+        return (transform.position + new Vector3(x * CellSize, 0, y * CellSize)) + (Vector3.one * (CellSize / 2));
     }
 
     public GridCell GetCell(int x, int y)
     {
-        return _grid[x, y];
+#if UNITY_EDITOR
+        if (_grid == null)
+            return null;
+#endif
+
+        GridCell cell = _grid[x, y];
+
+        if (cell != null)
+            return cell;
+
+        return null;
     }
 
     public bool GetXY(Vector3 worldPosition, out int x, out int y)
@@ -154,28 +164,57 @@ public class GridManager : MonoBehaviour
     {
         Gizmos.color = Color.green;
 
+        if(Application.isPlaying)
+            DrawireGridCubes();
+        else
+            DrawireGridCubesOutOfPlayMode();
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawRay(ray.origin, ray.direction * 1000);
+    }
+
+    void DrawireGridCubes()
+    {
         for (int x = 0; x < Columns; x++)
         {
             for (int y = 0; y < Rows; y++)
             {
                 GridCell grabbedCell = GetCell(x, y);
+
+                if (grabbedCell == null)
+                    continue;
+
                 Vector3 pos = grabbedCell.WorldPosition;
 
                 if (grabbedCell.NonBuildableSpot)
                     Gizmos.color = Color.gray;
                 if (grabbedCell.IsOccupied)
                     Gizmos.color = Color.red;
-                if(!grabbedCell.NonBuildableSpot && !grabbedCell.IsOccupied)
+                if (!grabbedCell.NonBuildableSpot && !grabbedCell.IsOccupied)
                     Gizmos.color = Color.green;
 
                 Gizmos.DrawWireCube(pos, Vector3.one * CellSize);
             }
         }
+    }
+    void DrawireGridCubesOutOfPlayMode()
+    {
+        for (int x = 0; x < Columns; x++)
+        {
+            for (int y = 0; y < Rows; y++)
+            {
+                Vector3 pos = GetWorldPosition(x, y);
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (x < NonBuildingColumnLimits)
+                    Gizmos.color = Color.gray;
+                else
+                    Gizmos.color = Color.green;
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawRay(ray.origin, ray.direction * 1000);
+                Gizmos.DrawWireCube(pos, Vector3.one * CellSize);
+            }
+        }
     }
 }
 
