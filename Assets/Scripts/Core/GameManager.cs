@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public enum GameState
@@ -13,8 +14,15 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     public static GameState CurrentState;
+    [SerializeField]
+    GameState TEMP_currentState;
 
     public EconomyController Economy;
+
+    [SerializeField]
+    EndGameCollider _endGameCollider;
+
+    public Action OnGameOver;
 
     void Awake()
     {
@@ -22,6 +30,8 @@ public class GameManager : MonoBehaviour
             Instance = this;
         else
             Destroy(this);
+
+        _endGameCollider.OnGameEnd += () => ChangeState(GameState.GameOver);
     }
 
     void Start()
@@ -46,6 +56,13 @@ public class GameManager : MonoBehaviour
 
     public void ChangeState(GameState desiredGameState)
     {
+        if (CurrentState == desiredGameState)
+            return;
+
         CurrentState = desiredGameState;
+        TEMP_currentState = CurrentState;
+
+        if (CurrentState == GameState.GameOver)
+            OnGameOver.Invoke();
     }
 }

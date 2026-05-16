@@ -160,7 +160,7 @@ public class GridManager : MonoBehaviour
             return null;
     }
 
-    void OnDrawGizmosSelected()
+    void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
 

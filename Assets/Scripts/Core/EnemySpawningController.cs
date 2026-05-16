@@ -2,6 +2,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
+
+/// <summary>
+/// TODO:
+/// Create a pooling system for the character in the list of what can be spawned and the characters in scene
+/// </summary>
 public class EnemySpawningController : MonoBehaviour
 {
     public static EnemySpawningController Instance;
@@ -27,6 +32,8 @@ public class EnemySpawningController : MonoBehaviour
     public void Initialize()
     {
         StartSpawningEnemies();
+
+        GameManager.Instance.OnGameOver += StopSpawningEnemies;
     }
 
     public void StartSpawningEnemies()
