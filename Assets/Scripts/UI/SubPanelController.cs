@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 
 [Serializable]
-public class SubPanelController : BuildUIBaseScript
+public class SubPanelController : UIBasePanel
 {
     [SerializeField]
     TextMeshProUGUI _partName;
@@ -16,8 +16,8 @@ public class SubPanelController : BuildUIBaseScript
 
     public override void Initialize()
     {
-        if(BuildMenuUIController.Instance.CurrentlySelectedPart)
-        throw new System.NotImplementedException();
+        if (BuildMenuUIController.Instance.CurrentlySelectedPart)
+            throw new System.NotImplementedException();
     }
 
     public void UpdateCurrentBuildPartsUI(PartInBuildMenu part)

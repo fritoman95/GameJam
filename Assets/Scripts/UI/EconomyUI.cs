@@ -2,7 +2,7 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
-public class EconomyUI : MonoBehaviour
+public class EconomyUI : UIBase
 {
     public static EconomyUI Instance;
 
@@ -21,7 +21,7 @@ public class EconomyUI : MonoBehaviour
 
     Tween _windowMoveTween;
 
-    void Awake()
+    public override void Initialize()
     {
         if (Instance == null)
             Instance = this;
@@ -29,20 +29,6 @@ public class EconomyUI : MonoBehaviour
             Destroy(this);
 
         _moneyTabShowingPosition = _moneyTabGameObject.anchoredPosition;
-    }
-
-    void Start()
-    {
-        ToggleMoneyTabVisibility(false, true);
-    }
-
-    public void Initialize()
-    {
-        //Set the current money amount
-        UpdateMoneyAmount();
-
-        //drop in money tab
-        ToggleMoneyTabVisibility(true);
     }
 
     public void UpdateMoneyAmount()
@@ -62,5 +48,21 @@ public class EconomyUI : MonoBehaviour
         float newTime = !snap ? BuildMenuMoveTime : 0;
 
         _windowMoveTween = _moneyTabGameObject.DOAnchorPos(newPosition, newTime).SetEase(_buildMenuMoveAnimationCurve);
+    }
+
+    public override void EnablePanel()
+    {
+        //Set the current money amount
+        UpdateMoneyAmount();
+
+        //drop in money tab
+        ToggleMoneyTabVisibility(true);
+
+        _uiParentObject.SetActive(true);
+    }
+
+    public override void DisablePanel()
+    {
+        _uiParentObject.SetActive(false);
     }
 }

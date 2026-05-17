@@ -1,7 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 
-public class MainMenuUIController : MonoBehaviour
+public class MainMenuUIController : UIBase
 {
     public static MainMenuUIController Instance;
 
@@ -18,19 +18,12 @@ public class MainMenuUIController : MonoBehaviour
 
     Tween _growingPanelTween;
 
-    void Awake()
+    public override void Initialize()
     {
-        if(Instance == null)
+        if (Instance == null)
             Instance = this;
         else
             Destroy(this);
-
-        HideMainMenu(snap: true);
-    }
-
-    void Start()
-    {
-        ShowMainMenu();
     }
 
     void ShowMainMenu()
@@ -56,11 +49,24 @@ public class MainMenuUIController : MonoBehaviour
     {
         HideMainMenu();
         GameManager.Instance.StartGame();
-        GamePlayUI.Instance.Initialize();
     }
 
     public void ExitGame()
     {
         Application.Quit();
+    }
+
+    public override void EnablePanel()
+    {
+        ShowMainMenu();
+
+        _uiParentObject.SetActive(true);
+    }
+
+    public override void DisablePanel()
+    {
+        HideMainMenu();
+
+        _uiParentObject.SetActive(false);
     }
 }

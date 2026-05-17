@@ -50,8 +50,9 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         ChangeState(GameState.Building);
+        UIController.Instance.ChangeCurrentPanel(UIPanel.BuildMenu);
 
-        EconomyUI.Instance.Initialize();
+        EconomyUI.Instance.EnablePanel();
     }
 
     public void ChangeState(GameState desiredGameState)

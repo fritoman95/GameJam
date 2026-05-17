@@ -2,7 +2,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GamePlayUI : MonoBehaviour
+public class GamePlayUI : UIBase
 {
     public static GamePlayUI Instance;
 
@@ -21,7 +21,12 @@ public class GamePlayUI : MonoBehaviour
 
     Tween _windowMoveTween;
 
-    void Awake()
+    void Start()
+    {
+        ToggleSelectButtonVisibility(false, true);
+    }
+
+    public override void Initialize()
     {
         if (Instance == null)
             Instance = this;
@@ -29,20 +34,6 @@ public class GamePlayUI : MonoBehaviour
             Destroy(this);
 
         _startButtonShowingPosition = _startbuttonTransform.anchoredPosition;
-    }
-
-    void Start()
-    {
-        ToggleSelectButtonVisibility(false, true);
-    }
-
-    public void Initialize()
-    {
-        //Set the current money amount
-        ToggleSendWaveButton(true);
-
-        //drop in money tab
-        ToggleSelectButtonVisibility(true);
     }
 
     void ToggleSendWaveButton(bool value)
@@ -76,5 +67,21 @@ public class GamePlayUI : MonoBehaviour
         float newTime = !snap ? StartButtonMoveTime : 0;
 
         _windowMoveTween = _startbuttonTransform.DOAnchorPos(newPosition, newTime).SetEase(_startButtonAnimationCurve);
+    }
+
+    public override void EnablePanel()
+    {
+        //Set the current money amount
+        ToggleSendWaveButton(true);
+
+        //drop in money tab
+        ToggleSelectButtonVisibility(true);
+
+        _uiParentObject.SetActive(true);
+    }
+
+    public override void DisablePanel()
+    {
+        _uiParentObject.SetActive(false);
     }
 }

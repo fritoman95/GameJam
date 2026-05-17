@@ -1,7 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 
-public class BuildMenuUIController : MonoBehaviour
+public class BuildMenuUIController : UIBase
 {
     public static BuildMenuUIController Instance;
     public PartInBuildMenu CurrentlySelectedPart => CastleBuilderController.Instance.CurrentlySelectedPart;
@@ -36,25 +36,12 @@ public class BuildMenuUIController : MonoBehaviour
 
     Tween _windowMoveTween;
 
-    void Awake()
+    public override void Initialize()
     {
         if (Instance == null)
             Instance = this;
         else
             Destroy(this);
-    }
-
-    void Start()
-    {
-        //initialize everything the UI will need here
-        _subPanelController.Initialize();
-
-        _buildWindowOriginPosition = _buildMenuMoveObject.anchoredPosition;
-
-        Vector2 targetPosition = _buildWindowOriginPosition;
-        targetPosition.y -= BuildWindowOutYValue;
-
-        MoveBuildWindowsPosition(targetPosition, useTime: false);
     }
 
     void Update()
@@ -116,5 +103,25 @@ public class BuildMenuUIController : MonoBehaviour
     public void UpdateCurrentBuildPartsUI(PartInBuildMenu part)
     {
         _subPanelController.UpdateCurrentBuildPartsUI(part);
+    }
+
+    public override void EnablePanel()
+    {
+        //initialize everything the UI will need here
+        _subPanelController.Initialize();
+
+        _buildWindowOriginPosition = _buildMenuMoveObject.anchoredPosition;
+
+        Vector2 targetPosition = _buildWindowOriginPosition;
+        targetPosition.y -= BuildWindowOutYValue;
+
+        MoveBuildWindowsPosition(targetPosition, useTime: false);
+
+        _uiParentObject.SetActive(true);
+    }
+
+    public override void DisablePanel()
+    {
+        _uiParentObject.SetActive(false);
     }
 }
