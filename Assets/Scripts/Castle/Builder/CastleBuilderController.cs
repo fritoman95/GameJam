@@ -87,11 +87,9 @@ public class CastleBuilderController : MonoBehaviour
 
         GridCell cell = GridManager.CurrentlyHoveredOverCell;
 
-        BuildingParts buildingPart = Instantiate(_currentlySelectedPart.Part, cell.WorldPosition, Quaternion.identity);
+        BuildingPart buildingPart = Instantiate(_currentlySelectedPart.Part, cell.WorldPosition, Quaternion.identity);
 
         buildingPart.InitializePart(cell);
-        GridManager.Instance.SaveGridCellCombo(cell, buildingPart);
-
         GameManager.Instance.Economy.ChargeForPart(buildingPart.BuildingStats.PartCost);
     }
 
@@ -132,9 +130,9 @@ public class CastleBuilderController : MonoBehaviour
     }
 }
 
-public class BuildingParts : MonoBehaviour, IHealthSystem
+public class BuildingPart : MonoBehaviour, IHealthSystem, IGridCellUpdater
 {
-    public GridCell BuildingPartsBuildCell;
+    public GridCell OccupyingCell;
 
     public BuildingPartsSO BuildingStats;
 
@@ -145,9 +143,15 @@ public class BuildingParts : MonoBehaviour, IHealthSystem
 
     public virtual void InitializePart(GridCell partsCell)
     {
-        BuildingPartsBuildCell = partsCell;
+        OccupyingCell = partsCell;
 
         SetHealthValues();
+        UpdateGridCell();
+    }
+
+    public void UpdateGridCell()
+    {
+        GridManager.Instance.SaveCellAndBuildingPart(OccupyingCell, this);
     }
 
     public void SetHealthValues()
@@ -169,7 +173,7 @@ public class BuildingParts : MonoBehaviour, IHealthSystem
     public void OnDieEvent()
     {
         //Play a death animation
-        GridManager.Instance.RemoveGridCellPair(BuildingPartsBuildCell);
+        GridManager.Instance.RemoveGridCellPair(OccupyingCell);
         Destroy(gameObject);
     }
 }

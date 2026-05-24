@@ -1,7 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 
-public class SquidTowerPart : BuildingParts
+public class SquidTowerPart : BuildingPart
 {
     [SerializeField]
     Animator _squidTowerAnimator;

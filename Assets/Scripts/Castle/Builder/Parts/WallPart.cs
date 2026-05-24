@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class WallPart : BuildingParts
+public class WallPart : BuildingPart
 {
 
 }

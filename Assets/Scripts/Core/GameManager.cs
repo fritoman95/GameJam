@@ -63,7 +63,16 @@ public class GameManager : MonoBehaviour
         CurrentState = desiredGameState;
         TEMP_currentState = CurrentState;
 
+        if (CurrentState == GameState.Defending)
+        {
+            TimeController.Instance.Initialize();
+            EnemySpawningController.Instance.Initialize();
+            return;
+        }
         if (CurrentState == GameState.GameOver)
+        {
             OnGameOver.Invoke();
+            return;
+        }
     }
 }

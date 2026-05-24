@@ -1368,16 +1368,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46a537a7f111ce440b3b357d63893a79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cells: []
-  _buildableFloor: {fileID: 1590592479103907884, guid: 3d1649528a6212e459e38234cd49da49, type: 3}
-  _buildableSpotMaterials:
-  - {fileID: 2100000, guid: dd9dd36678c4d4e46844d30168da62a6, type: 2}
-  - {fileID: 2100000, guid: 17b06bbbb7d9f4a48ad8e8fe17afe3e6, type: 2}
+  _gridCells: []
   Rows: 3
   Columns: 11
   CellSize: 5
   NonBuildingColumnLimits: 4
-  _buildingParts: []
+  TEMP_currentlyOccupiedCells: []
+  TEMP_currentCellsWithEnemies: []
+  TEMP_currentCellsWithTowers: []
+  _buildableFloor: {fileID: 1590592479103907884, guid: 3d1649528a6212e459e38234cd49da49, type: 3}
+  _buildableSpotMaterials:
+  - {fileID: 2100000, guid: dd9dd36678c4d4e46844d30168da62a6, type: 2}
+  - {fileID: 2100000, guid: 17b06bbbb7d9f4a48ad8e8fe17afe3e6, type: 2}
 --- !u!1 &272319206
 GameObject:
   m_ObjectHideFlags: 0
@@ -2719,7 +2721,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2050239847}
-  - {fileID: 1178549770}
   m_Father: {fileID: 1141778353}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3782,14 +3783,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _uiParentObject: {fileID: 434991882}
   _subPanelController:
-    _partName: {fileID: 0}
-    _healthValue: {fileID: 0}
-    _damageValue: {fileID: 0}
-    _costValue: {fileID: 0}
+    _partName: {fileID: 2147337453}
+    _healthValue: {fileID: 1550667142}
+    _damageValue: {fileID: 191236209}
+    _costValue: {fileID: 1261549256}
+  _startWaveButton: {fileID: 1947217649}
   _showingBuildMenu: 0
   _currentHidingTimer: 0
   _hidingTimerThreshold: 2
   _buildMenuMoveObject: {fileID: 434991883}
+  _startbuttonTransform: {fileID: 1178549770}
   _buildMenuMoveAnimationCurve:
     serializedVersion: 2
     m_Curve:
@@ -3819,6 +3822,30 @@ MonoBehaviour:
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.26649722
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _startButtonAnimationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2.4828362
+      outSlope: 2.4828362
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.06874329
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
@@ -4271,6 +4298,7 @@ RectTransform:
   m_Children:
   - {fileID: 1719404656}
   - {fileID: 434991883}
+  - {fileID: 1178549770}
   - {fileID: 574381816}
   - {fileID: 1893386058}
   m_Father: {fileID: 656522958}
@@ -4309,7 +4337,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5322021}
-  m_Father: {fileID: 574381816}
+  m_Father: {fileID: 1141778353}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -5709,7 +5737,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _uiParentObject: {fileID: 574381815}
-  _startWaveButton: {fileID: 1947217649}
   _startbuttonTransform: {fileID: 5322021}
   _startButtonAnimationCurve:
     serializedVersion: 2
@@ -6687,8 +6714,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: GamePlayUI, Assembly-CSharp
+      - m_Target: {fileID: 950018135}
+        m_TargetAssemblyTypeName: BuildMenuUIController, Assembly-CSharp
         m_MethodName: SendWaveButtonPressed
         m_Mode: 1
         m_Arguments:

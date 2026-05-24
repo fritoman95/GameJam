@@ -12,14 +12,8 @@ public class GridManager : MonoBehaviour
     GridCell[,] _grid;
 
     [SerializeField]
-    List<GridCell> _cells = new List<GridCell>();
-
-    [SerializeField]
-    GameObject _buildableFloor;
-    [SerializeField]
-    List<Material> _buildableSpotMaterials;
-
-    Vector3 _buildableFloorSize = new Vector3(5, .01f, 5);
+    List<GridCell> _gridCells = new List<GridCell>();
+    HashSet<GridCell> _gridCellsHashSet = new HashSet<GridCell>();
 
     [Header("Grid Parameters")]
     //Was CellWidth
@@ -33,10 +27,26 @@ public class GridManager : MonoBehaviour
     public int NonBuildingColumnLimits;
 
     [SerializeField]
-    Dictionary<GridCell, BuildingParts> _gridAndBuildingPieceDictionary;
+    Dictionary<GridCell, BuildingPart> _gridAndBuildingPieceDictionary;
+
+    List<GridCell> _currentlyOccupiedCells => _currentCellsWithEnemies.Concat(_currentCellsWithTowers).Distinct().ToList();
+    List<GridCell> _currentCellsWithEnemies => _gridCells.Where(x => x.EnemiesOnCell.Count > 0).ToList();
+    List<GridCell> _currentCellsWithTowers => _gridCells.Where(x => x.BuildingPartsOnCell.Count > 0).ToList();
 
     [SerializeField]
-    List<BuildingParts> _buildingParts = new List<BuildingParts>();
+    List<GridCell> TEMP_currentlyOccupiedCells;
+    [SerializeField]
+    List<GridCell> TEMP_currentCellsWithEnemies;
+    [SerializeField]
+    List<GridCell> TEMP_currentCellsWithTowers;
+
+    [Header("Possibly temporary ground")]
+    [SerializeField]
+    GameObject _buildableFloor;
+    [SerializeField]
+    List<Material> _buildableSpotMaterials;
+
+    Vector3 _buildableFloorSize = new Vector3(5, .01f, 5);
 
     void Awake()
     {
@@ -50,7 +60,7 @@ public class GridManager : MonoBehaviour
     {
         CreateGrid();
 
-        _gridAndBuildingPieceDictionary = new Dictionary<GridCell, BuildingParts>();
+        _gridAndBuildingPieceDictionary = new Dictionary<GridCell, BuildingPart>();
     }
 
     void Update()
@@ -64,6 +74,10 @@ public class GridManager : MonoBehaviour
 
             CurrentlyHoveredOverCell = cell;
         }
+
+        TEMP_currentlyOccupiedCells = _currentlyOccupiedCells;
+        TEMP_currentCellsWithEnemies = _currentCellsWithEnemies;
+        TEMP_currentCellsWithTowers = _currentCellsWithTowers;
     }
 
     void CreateGrid()
@@ -93,30 +107,36 @@ public class GridManager : MonoBehaviour
                 }
 
                 _grid[x, y] = thisCell;
-                _cells.Add(thisCell);
+                _gridCells.Add(thisCell);
             }
         }
     }
 
-    public void SaveGridCellCombo(GridCell cell, BuildingParts part)
+    public void SaveCellAndBuildingPart(GridCell cell, BuildingPart part)
     {
-        cell.IsOccupied = true;
-
         _gridAndBuildingPieceDictionary.Add(cell, part);
+        cell.BuildingPartsOnCell.Add(part);
+    }
 
-        _cells.Add(cell);
-        _buildingParts.Add(part);
+    public void UpdateCellAndEnemyInformation(GridCell newCell, BaseEnemy enemy)
+    {
+        //If the enemy is currently on a different cell, unassign it
+        if(enemy.CellCurrentlyOn != null)
+            enemy.CellCurrentlyOn.EnemiesOnCell.Remove(enemy);
+
+        newCell.EnemiesOnCell.Add(enemy);
     }
 
     public void RemoveGridCellPair(GridCell cell = null)
     {
         if (cell == null)
-            throw new System.Exception("Cannot remove a part if nothing is provided");
+            throw new Exception("Cannot remove a part if nothing is provided");
 
-        _gridAndBuildingPieceDictionary.TryGetValue(cell, out BuildingParts value);
+        _gridAndBuildingPieceDictionary.TryGetValue(cell, out BuildingPart value);
 
-        _cells.Remove(cell);
-        _buildingParts.Remove(value);
+        if (value == null)
+            throw new Exception($"No Building Part was grabbed at cell {cell}, could not remove");
+
         _gridAndBuildingPieceDictionary.Remove(cell);
     }
 
@@ -140,6 +160,14 @@ public class GridManager : MonoBehaviour
         return null;
     }
 
+    public GridCell GetCell(Vector3 worldPosition)
+    {
+        if (GetXY(worldPosition, out int x, out int y))
+            return GetCell(x, y);
+        else
+            return null;
+    }
+
     public bool GetXY(Vector3 worldPosition, out int x, out int y)
     {
         Vector3 offset = worldPosition - transform.position;
@@ -150,9 +178,9 @@ public class GridManager : MonoBehaviour
         return x >= 0 && y >= 0 && x < Columns && y < Rows;
     }
 
-    public BuildingParts GetFirstCellInRowWithTower(int row)
+    public BuildingPart GetFirstCellInRowWithTower(int row)
     {
-        GridCell firstOccupiedCellInRow = _cells.Where(x => x.Row == row).ToList().FirstOrDefault(x => x.IsOccupied);
+        GridCell firstOccupiedCellInRow = _gridCells.Where(x => x.Row == row).ToList().FirstOrDefault(x => x.IsOccupied);
 
         if (firstOccupiedCellInRow != null)
             return _gridAndBuildingPieceDictionary.GetValueOrDefault(firstOccupiedCellInRow);
@@ -221,20 +249,37 @@ public class GridManager : MonoBehaviour
 [Serializable]
 public class GridCell
 {
-    public int Column { get; private set; }
-    public int Row { get; private set; }
+    [SerializeField]
+    int _column;
+    public int Column => _column;
+    [SerializeField]
+    int _row;
+    public int Row => _row;
 
     internal Vector3 WorldPosition;
+
+    public List<BaseEnemy> EnemiesOnCell = new List<BaseEnemy>();
+    public List<BuildingPart> BuildingPartsOnCell = new List<BuildingPart>();
     
-    internal bool IsOccupied;
+    internal bool IsOccupied => BuildingPartsOnCell.Count > 0;
     internal bool NonBuildableSpot;
 
     internal GridCell(int x, int y, Vector3 worldPosition)
     {
-        Column = x;
-        Row = y;
+        _column = x;
+        _row = y;
         WorldPosition = worldPosition;
 
         NonBuildableSpot = Column < GridManager.Instance.NonBuildingColumnLimits;
     }
+}
+
+interface IGridCellUpdater
+{
+    public void UpdateGridCell();
+}
+
+interface IConstantGridCellUpdater
+{
+    public void UpdateGridCell();
 }

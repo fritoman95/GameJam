@@ -2,15 +2,16 @@ using System;
 using UnityEngine;
 
 [Serializable]
-public class BaseEnemy : MonoBehaviour, IHealthSystem
+public class BaseEnemy : MonoBehaviour, IHealthSystem, IConstantGridCellUpdater
 {
     public int Row;
+    public GridCell CellCurrentlyOn;
 
     [SerializeField]
     EnemyStatsSO _stats;
 
     [SerializeField]
-    BuildingParts _targettedBuildingPart;
+    BuildingPart _targettedBuildingPart;
 
     public int MaxHealth;
     public int CurrentHealth;
@@ -28,9 +29,11 @@ public class BaseEnemy : MonoBehaviour, IHealthSystem
     [SerializeField]
     Animator _enemyAnimator;
 
-    public void Intialize(int row)
+    public void Intialize(int row, int column = 0)
     {
         Row = row;
+
+        CellCurrentlyOn = GridManager.Instance.GetCell(column, row);
 
         SetHealthValues();
         
@@ -65,6 +68,8 @@ public class BaseEnemy : MonoBehaviour, IHealthSystem
             MoveAcrossLane();
 
         _enemyAnimator.SetBool("Walking", _isWalking);
+
+        UpdateGridCell();
     }
 
     public void MoveAcrossLane()
@@ -120,5 +125,19 @@ public class BaseEnemy : MonoBehaviour, IHealthSystem
 
         //reward money
         GameManager.Instance.Economy.RewardMoney(_stats.KillReward);
+    }
+
+    public void UpdateGridCell()
+    {
+        GridCell checkedCell = GridManager.Instance.GetCell(transform.position);
+
+        if (checkedCell == null || CellCurrentlyOn == checkedCell)
+            return;
+        else
+        {
+            GridManager.Instance.UpdateCellAndEnemyInformation(checkedCell, this);
+
+            CellCurrentlyOn = checkedCell;
+        }
     }
 }

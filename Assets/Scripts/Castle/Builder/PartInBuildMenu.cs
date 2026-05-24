@@ -6,7 +6,7 @@ using UnityEngine.UI;
 [Serializable]
 public class PartInBuildMenu : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    public BuildingParts Part;
+    public BuildingPart Part;
 
     RawImage _partTexture;
 

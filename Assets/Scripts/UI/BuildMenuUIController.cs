@@ -1,5 +1,6 @@
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BuildMenuUIController : UIBase
 {
@@ -8,6 +9,9 @@ public class BuildMenuUIController : UIBase
 
     [SerializeField]
     SubPanelController _subPanelController;
+
+    [SerializeField]
+    Button _startWaveButton;
 
     [SerializeField]
     bool _showingBuildMenu;
@@ -25,16 +29,24 @@ public class BuildMenuUIController : UIBase
 
     [SerializeField]
     RectTransform _buildMenuMoveObject;
+    [SerializeField]
+    RectTransform _startbuttonTransform;
 
     [SerializeField]
     AnimationCurve _buildMenuMoveAnimationCurve;
+    [SerializeField]
+    AnimationCurve _startButtonAnimationCurve;
 
     const float BuildMenuMoveTime = .35f;
     const float BuildWindowOutYValue = 200;
+    const int _startButtonHiddenYOffset = 100;
+    const float StartButtonMoveTime = .35f;
 
     Vector2 _buildWindowOriginPosition;
+    Vector2 _startButtonShowingPosition;
 
     Tween _windowMoveTween;
+    Tween _sendWaveMoveTween;
 
     public override void Initialize()
     {
@@ -42,6 +54,10 @@ public class BuildMenuUIController : UIBase
             Instance = this;
         else
             Destroy(this);
+
+        ToggleSendWaveButtonVisibility(false, true);
+
+        _startButtonShowingPosition = _startbuttonTransform.anchoredPosition;
     }
 
     void Update()
@@ -105,10 +121,51 @@ public class BuildMenuUIController : UIBase
         _subPanelController.UpdateCurrentBuildPartsUI(part);
     }
 
+    public void SendWaveButtonPressed()
+    {
+        Debug.LogWarning("1");
+        ToggleSendWaveButton(false);
+        Debug.LogWarning("2");
+        ToggleSendWaveButtonVisibility(false);
+        Debug.LogWarning("3");
+        HideBuildMenu();
+        Debug.LogWarning("4");
+
+        CastleBuilderController.Instance.AssignCurrentSelectedPart(null);
+        Debug.LogWarning("5");
+        GameManager.Instance.ChangeState(GameState.Defending);
+        Debug.LogWarning("6");
+    }
+
+    void ToggleSendWaveButton(bool value)
+    {
+        //drop in money tab
+        if (value)
+            ToggleSendWaveButtonVisibility(true);
+
+        _startWaveButton.enabled = value;
+    }
+
+    public void ToggleSendWaveButtonVisibility(bool visible, bool snap = false)
+    {
+        if (_sendWaveMoveTween != null || _sendWaveMoveTween.IsActive())
+            _sendWaveMoveTween.Kill(false);
+
+        Vector2 newPosition = _startButtonShowingPosition;
+        if (!visible)
+            newPosition.y += _startButtonHiddenYOffset;
+
+        float newTime = !snap ? StartButtonMoveTime : 0;
+
+        _sendWaveMoveTween = _startbuttonTransform.DOAnchorPos(newPosition, newTime).SetEase(_startButtonAnimationCurve);
+    }
+
     public override void EnablePanel()
     {
         //initialize everything the UI will need here
         _subPanelController.Initialize();
+        //Set the current money amount
+        ToggleSendWaveButton(true);
 
         _buildWindowOriginPosition = _buildMenuMoveObject.anchoredPosition;
 
