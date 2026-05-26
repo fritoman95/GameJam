@@ -13,6 +13,8 @@ public class GridManager : MonoBehaviour
 
     [SerializeField]
     List<GridCell> _gridCells = new List<GridCell>();
+    public List<GridCell> GridCells => _gridCells;
+
     HashSet<GridCell> _gridCellsHashSet = new HashSet<GridCell>();
 
     [Header("Grid Parameters")]
@@ -99,7 +101,7 @@ public class GridManager : MonoBehaviour
                 Vector3 spawnPoint = thisCell.WorldPosition;
                 spawnPoint.y = 0;
 
-                if(!thisCell.NonBuildableSpot)
+                if (!thisCell.NonBuildableSpot)
                 {
                     GameObject floor = Instantiate(_buildableFloor, spawnPoint, Quaternion.identity);
                     floor.GetComponent<Renderer>().material = _buildableSpotMaterials[numberOfSpawns % 2];
@@ -122,9 +124,9 @@ public class GridManager : MonoBehaviour
     {
         //If the enemy is currently on a different cell, unassign it
         if(enemy.CellCurrentlyOn != null)
-            enemy.CellCurrentlyOn.EnemiesOnCell.Remove(enemy);
+            enemy.CellCurrentlyOn.RemoveEnemyToGridList(enemy);
 
-        newCell.EnemiesOnCell.Add(enemy);
+        newCell.AddEnemyToGridList(enemy);
     }
 
     public void RemoveGridCellPair(GridCell cell = null)
@@ -264,6 +266,18 @@ public class GridCell
     internal bool IsOccupied => BuildingPartsOnCell.Count > 0;
     internal bool NonBuildableSpot;
 
+    /// <summary>
+    /// Event will fire whenever an enemy crosses onto this cell
+    /// Action sends true when it is the initial enemy
+    /// </summary>
+    public Action<BaseEnemy> OnEnemiesAdded;
+
+    /// <summary>
+    /// Event will fire whenever an enemy is removed from this cell
+    /// Action sends true when it is the last enemy
+    /// </summary>
+    public Action<BaseEnemy> OnEnemiesRemoved;
+
     internal GridCell(int x, int y, Vector3 worldPosition)
     {
         _column = x;
@@ -271,6 +285,32 @@ public class GridCell
         WorldPosition = worldPosition;
 
         NonBuildableSpot = Column < GridManager.Instance.NonBuildingColumnLimits;
+    }
+
+    public void AddEnemyToGridList(BaseEnemy enemy)
+    {
+        if (EnemiesOnCell.Contains(enemy))
+        {
+            Debug.LogWarning($"Cell at column: {_column}, row: {_row}, already has enemy: {enemy}");
+            return;
+        }
+
+        EnemiesOnCell.Add(enemy);
+        Debug.LogWarning($"Called Adding enemy to cell on cell: {_column}, {_row}");
+        OnEnemiesAdded?.Invoke(enemy);
+    }
+
+    public void RemoveEnemyToGridList(BaseEnemy enemy)
+    {
+        if (!EnemiesOnCell.Contains(enemy))
+        {
+            Debug.LogWarning($"Cell at column: {_column}, row: {_row}, does not have enemy: {enemy}");
+            return;
+        }
+
+        EnemiesOnCell.Remove(enemy);
+        Debug.LogWarning($"Called Adding enemy from cell on cell: {_column}, {_row}");
+        OnEnemiesRemoved?.Invoke(enemy);
     }
 }
 

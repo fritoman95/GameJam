@@ -17,6 +17,7 @@ MonoBehaviour:
   DamagePoints: 5
   AttackTime: 1.5
   PartCost: 20
+  ColumnAttackRange: 2
   BuildingGameObject: {fileID: 0}
   PartMeshFilter: {fileID: -5754084199372789682, guid: da8d90f8852318048979c952daf50695, type: 3}
   UISprite: {fileID: 0}

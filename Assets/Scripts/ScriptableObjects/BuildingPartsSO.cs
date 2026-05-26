@@ -12,6 +12,8 @@ public class BuildingPartsSO : ScriptableObject
 
     public int PartCost;
 
+    public int ColumnAttackRange;
+
     public GameObject BuildingGameObject;
 
     [SerializeField]
